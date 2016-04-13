@@ -1,0 +1,30 @@
+#mq {
+    z-index: 1;
+    display: block;
+    border: 0;
+    clip: rect(0 0 0 0);
+    height: 1px;
+    width: 1px;
+    margin: -1px;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+}
+
+@media screen and (min-width: 540px) {
+    #mq {
+        z-index: 2;
+    }
+}
+
+@media screen and (min-width: 768px) {
+    #mq {
+        z-index: 3;
+    }
+}
+
+@media screen and (min-width: 1084px) {
+    #mq {
+        z-index: 4;
+    }
+}
