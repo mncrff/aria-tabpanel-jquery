@@ -98,12 +98,12 @@
         }
 
         // change aria attribute values to indicate that the tab contents are showing
-        tabObj.prototype.showPanel = function() {
+        tabObj.prototype.showPanel = function(focus = true) {
             var tab = this;
             // set tab as 'selected', 'active' and focusable by adding to tab order
             this.$el.attr({'aria-selected': true, 'tabindex': 0}).addClass('active');
-            // set focus on tab
-            setTimeout(function(){ tab.$el.focus(); }, 0);
+            // set focus on tab if focus is set to true (true is default)
+            if (focus) { setTimeout(function(){ tab.$el.focus(); }, 0); }
             // set tabpanel as visible, and remove the tab order (which was probably set to -1)
             this.$tabpanel.attr('aria-hidden', false).removeAttr('tabindex').show();
             // set tabpanel heading element to be focusable by adding to tab order
@@ -170,8 +170,8 @@
             tab.$tabpanel.on('keydown', {tab: tab, self: self}, createPanelOnKeydown);
         }
 
-        // set first tab as open tab
-        this.switchTo(0);
+        // set first tab as open tab, and do not set focus on tab
+        this.switchTo(0, false);
 
         // return tabSet object for chaining
         return this;
@@ -199,7 +199,7 @@
         return this;
     }
 
-    tabSet.prototype.switchTo = function(n) {
+    tabSet.prototype.switchTo = function(n, focus) {
         // hide all tab panels
         for (i = 0; i < this.tabs.length; i++) {
             var tab = this.tabs[i];
@@ -209,7 +209,8 @@
         }
 
         // show specified panel
-        this.tabs[n].showPanel();
+        // passes optional boolean `focus` which defines whether or not focus is set on tab
+        this.tabs[n].showPanel(focus);
     }
 
     var constructTabSet = function(el) {
