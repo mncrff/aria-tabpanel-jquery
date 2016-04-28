@@ -22,18 +22,18 @@
     }
 
     function desktopScripts() {
-    	if (typeof $.test != 'undefined' || $.test != null) {
+    	if (typeof $.testTabs != 'undefined' || $.testTabs != null) {
     		//destroy tabs
-            $.test.destroy();
+            $.testTabs.destroy();
     	}
     }
 
     function mobileScripts() {
-    	if (typeof $.test == 'undefined' || $.test == null) {
-        	$.test = new window.tabSet('.c-tabs');
+    	if (typeof $.testTabs == 'undefined' || $.testTabs == null) {
+        	$.testTabs = tabSet('.c-tabs');
         } else {
         	//rebuild tabs
-            $.test.build();
+            $.testTabs.build();
         }
     }
 

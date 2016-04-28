@@ -83,6 +83,9 @@
     var tabSet = function(el) {
         var self = this;
         this.$el = $(el);
+        this.$tablist = this.$el.find('.c-tabs__tablist');
+        this.$tablinks = this.$tablist.find('a');
+        this.tabs = {};
 
         var tabObj = function(i, el) {
             var tab = this;
@@ -133,80 +136,63 @@
             this.$tabpanel_header.removeAttr('tabindex');
         }
 
-        // if a true tabSet object exists
-        if (this.$el.length > 0) {
+        // create tabs in this set
+        this.tabs = this.$tablinks.map(function(i, el) {
+            // init a new object created from anchor element
+            var tab = new tabObj(i, el);
 
-            this.$tablist = this.$el.find('.c-tabs__tablist');
-            this.$tablinks = this.$tablist.find('a');
-            this.tabs = {};
+            // return tab object into an array for storage
+            return tab;
+        }).toArray();
 
-            // create tabs in this set
-            this.tabs = this.$tablinks.map(function(i, el) {
-                // init a new object created from anchor element
-                var tab = new tabObj(i, el);
-
-                // return tab object into an array for storage
-                return tab;
-            }).toArray();
-
-            this.build();
-
-        }
+        this.build();
 
     }
 
     tabSet.prototype.build = function() {
-        // if a true tabSet object exists
-        if (this.$el.length > 0) {
+        var self = this;
 
-            var self = this;
+        // add a class to component to mark it as activated
+        this.$el.addClass('.c-tabs__activated');
 
-            // add a class to component to mark it as activated
-            this.$el.addClass('.c-tabs__activated');
+        // add aria and show the tablist dom elements
+        this.$tablist.attr('role', 'tablist');
 
-            // add aria and show the tablist dom elements
-            this.$tablist.attr('role', 'tablist');
+        // loop through all tabObjs stored in tabs array
+        for (i = 0; i < this.tabs.length; i++) {
+            var tab = this.tabs[i];
+            // setup the tab and its panel as an "accessible tabs" component
+            tab.createPanel();
 
-            // loop through all tabObjs stored in tabs array
-            for (i = 0; i < this.tabs.length; i++) {
-                var tab = this.tabs[i];
-                // setup the tab and its panel as an "accessible tabs" component
-                tab.createPanel();
-
-                // create listeners for the tab's link
-                tab.$el.on('click', {i: i, tab: tab, self: self}, createOnClick).on('keydown', {i: i, tab: tab, self: self}, createTabOnKeydown);
-                // create listener for the tab's panel
-                tab.$tabpanel.on('keydown', {tab: tab, self: self}, createPanelOnKeydown);
-            }
-
-            // set first tab as open tab
-            this.switchTo(0);
+            // create listeners for the tab's link
+            tab.$el.on('click', {i: i, tab: tab, self: self}, createOnClick).on('keydown', {i: i, tab: tab, self: self}, createTabOnKeydown);
+            // create listener for the tab's panel
+            tab.$tabpanel.on('keydown', {tab: tab, self: self}, createPanelOnKeydown);
         }
+
+        // set first tab as open tab
+        this.switchTo(0);
 
         // return tabSet object for chaining
         return this;
     }
 
     tabSet.prototype.destroy = function() {
-        // if a true tabSet object exists
-        if (this.$el.length > 0) {
+        // remove class on component that marks it as activated
+        this.$el.removeClass('.c-tabs__activated');
 
-            // remove class on component that marks it as activated
-            this.$el.removeClass('.c-tabs__activated');
+        // remove aria and any 'active' classes or display properties that have been applied
+        this.$tablist.removeAttr('role');
 
-            // remove aria and any 'active' classes or display properties that have been applied
-            this.$tablist.removeAttr('role');
+        // loop through all tabObjs stored in tabs array
+        for (i = 0; i < this.tabs.length; i++) {
+            var tab = this.tabs[i];
+            // remove anything that makes this an "accessible tabs" component
+            tab.removePanel();
 
-            // loop through all tabObjs stored in tabs array
-            for (i = 0; i < this.tabs.length; i++) {
-                var tab = this.tabs[i];
-                // remove anything that makes this an "accessible tabs" component
-                tab.removePanel();
-
-                // remove all event listeners that were added
-                tab.$el.off('click', createOnClick).off('click', createTabOnKeydown);
-                tab.$tabpanel.off('keydown', createPanelOnKeydown);
-            }
+            // remove all event listeners that were added
+            tab.$el.off('click', createOnClick).off('click', createTabOnKeydown);
+            tab.$tabpanel.off('keydown', createPanelOnKeydown);
         }
 
         // return tabSet object for chaining
@@ -214,23 +200,25 @@
     }
 
     tabSet.prototype.switchTo = function(n) {
-        // if a true tabSet object exists
-        if (this.$el.length > 0) {
-
-            // hide all tab panels
-            for (i = 0; i < this.tabs.length; i++) {
-                var tab = this.tabs[i];
-                if (i != n) {
-                    tab.hidePanel();
-                }
+        // hide all tab panels
+        for (i = 0; i < this.tabs.length; i++) {
+            var tab = this.tabs[i];
+            if (i != n) {
+                tab.hidePanel();
             }
+        }
 
-            // show specified panel
-            this.tabs[n].showPanel();
+        // show specified panel
+        this.tabs[n].showPanel();
+    }
+
+    var constructTabSet = function(el) {
+        if (document.querySelector(el) !== null) {
+            return new tabSet(el);
         }
     }
 
     // expose tabSet object to global scope for use
-    window.tabSet = tabSet;
+    window.tabSet = constructTabSet;
 
 })(window.jQuery);
