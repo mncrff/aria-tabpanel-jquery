@@ -83,9 +83,6 @@
     var tabSet = function(el) {
         var self = this;
         this.$el = $(el);
-        this.$tablist = this.$el.find('.c-tabs__tablist');
-        this.$tablinks = this.$tablist.find('a');
-        this.tabs = {};
 
         var tabObj = function(i, el) {
             var tab = this;
@@ -136,62 +133,80 @@
             this.$tabpanel_header.removeAttr('tabindex');
         }
 
+        // if a true tabSet object exists
+        if (this.$el.length > 0) {
 
-        // create tabs in this set
-        this.tabs = this.$tablinks.map(function(i, el) {
-            // init a new object created from anchor element
-            var tab = new tabObj(i, el);
+            this.$tablist = this.$el.find('.c-tabs__tablist');
+            this.$tablinks = this.$tablist.find('a');
+            this.tabs = {};
 
-            // return tab object into an array for storage
-            return tab;
-        }).toArray();
+            // create tabs in this set
+            this.tabs = this.$tablinks.map(function(i, el) {
+                // init a new object created from anchor element
+                var tab = new tabObj(i, el);
+
+                // return tab object into an array for storage
+                return tab;
+            }).toArray();
+
+            this.build();
+
+        }
 
     }
 
     tabSet.prototype.build = function() {
-        var self = this;
+        // if a true tabSet object exists
+        if (this.$el.length > 0) {
 
-        // add a class to component to mark it as activated
-        this.$el.addClass('.c-tabs__activated');
+            var self = this;
 
-        // add aria and show the tablist dom elements
-        this.$tablist.attr('role', 'tablist');
+            // add a class to component to mark it as activated
+            this.$el.addClass('.c-tabs__activated');
 
-        // loop through all tabObjs stored in tabs array
-        for (i = 0; i < this.tabs.length; i++) {
-            var tab = this.tabs[i];
-            // setup the tab and its panel as an "accessible tabs" component
-            tab.createPanel();
+            // add aria and show the tablist dom elements
+            this.$tablist.attr('role', 'tablist');
 
-            // create listeners for the tab's link
-            tab.$el.on('click', {i: i, tab: tab, self: self}, createOnClick).on('keydown', {i: i, tab: tab, self: self}, createTabOnKeydown);
-            // create listener for the tab's panel
-            tab.$tabpanel.on('keydown', {tab: tab, self: self}, createPanelOnKeydown);
+            // loop through all tabObjs stored in tabs array
+            for (i = 0; i < this.tabs.length; i++) {
+                var tab = this.tabs[i];
+                // setup the tab and its panel as an "accessible tabs" component
+                tab.createPanel();
+
+                // create listeners for the tab's link
+                tab.$el.on('click', {i: i, tab: tab, self: self}, createOnClick).on('keydown', {i: i, tab: tab, self: self}, createTabOnKeydown);
+                // create listener for the tab's panel
+                tab.$tabpanel.on('keydown', {tab: tab, self: self}, createPanelOnKeydown);
+            }
+
+            // set first tab as open tab
+            this.switchTo(0);
         }
-
-        // set first tab as open tab
-        this.switchTo(0);
 
         // return tabSet object for chaining
         return this;
     }
 
     tabSet.prototype.destroy = function() {
-        // remove class on component that marks it as activated
-        this.$el.removeClass('.c-tabs__activated');
+        // if a true tabSet object exists
+        if (this.$el.length > 0) {
 
-        // remove aria and any 'active' classes or display properties that have been applied
-        this.$tablist.removeAttr('role');
+            // remove class on component that marks it as activated
+            this.$el.removeClass('.c-tabs__activated');
 
-        // loop through all tabObjs stored in tabs array
-        for (i = 0; i < this.tabs.length; i++) {
-            var tab = this.tabs[i];
-            // remove anything that makes this an "accessible tabs" component
-            tab.removePanel();
+            // remove aria and any 'active' classes or display properties that have been applied
+            this.$tablist.removeAttr('role');
 
-            // remove all event listeners that were added
-            tab.$el.off('click', createOnClick).off('click', createTabOnKeydown);
-            tab.$tabpanel.off('keydown', createPanelOnKeydown);
+            // loop through all tabObjs stored in tabs array
+            for (i = 0; i < this.tabs.length; i++) {
+                var tab = this.tabs[i];
+                // remove anything that makes this an "accessible tabs" component
+                tab.removePanel();
+
+                // remove all event listeners that were added
+                tab.$el.off('click', createOnClick).off('click', createTabOnKeydown);
+                tab.$tabpanel.off('keydown', createPanelOnKeydown);
+            }
         }
 
         // return tabSet object for chaining
@@ -199,16 +214,20 @@
     }
 
     tabSet.prototype.switchTo = function(n) {
-        // hide all tab panels
-        for (i = 0; i < this.tabs.length; i++) {
-            var tab = this.tabs[i];
-            if (i != n) {
-                tab.hidePanel();
-            }
-        }
+        // if a true tabSet object exists
+        if (this.$el.length > 0) {
 
-        // show specified panel
-        this.tabs[n].showPanel();
+            // hide all tab panels
+            for (i = 0; i < this.tabs.length; i++) {
+                var tab = this.tabs[i];
+                if (i != n) {
+                    tab.hidePanel();
+                }
+            }
+
+            // show specified panel
+            this.tabs[n].showPanel();
+        }
     }
 
     // expose tabSet object to global scope for use

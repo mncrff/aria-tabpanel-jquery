@@ -30,7 +30,7 @@
 
     function mobileScripts() {
     	if (typeof $.test == 'undefined' || $.test == null) {
-        	$.test = new window.tabSet('.c-tabs').build();
+        	$.test = new window.tabSet('.c-tabs');
         } else {
         	//rebuild tabs
             $.test.build();
